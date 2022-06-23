@@ -1,5 +1,6 @@
 package com.example.flywalkswim.service;
 
+import com.example.flywalkswim.controller.EventsController;
 import com.example.flywalkswim.entity.Player;
 import com.example.flywalkswim.entity.Room;
 import com.example.flywalkswim.repository.PlayerRepository;
@@ -18,12 +19,17 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
   private final PlayerRepository playerRepository;
+  private final EventsController eventsController;
+  // cache of roomName -> roomUuid
   private final ConcurrentMap<String, UUID> roomSet = new ConcurrentHashMap<>();
+  // store the score of players
 
-  private RoomService(@NonNull final RoomRepository roomRepository,
-      @NonNull final PlayerRepository playerRepository) {
+  public RoomService(@NonNull final RoomRepository roomRepository,
+      @NonNull final PlayerRepository playerRepository,
+      @NonNull final EventsController eventsController) {
     this.roomRepository = roomRepository;
     this.playerRepository = playerRepository;
+    this.eventsController = eventsController;
   }
 
   public Room createRoom() {
@@ -62,5 +68,6 @@ public class RoomService {
     }
     roomSet.remove(roomName);
     playerRepository.deleteByRoomId(id);
+    eventsController.delete(id);
   }
 }
